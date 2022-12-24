@@ -14,10 +14,10 @@ public class AnalyticsReport {
     private Long uniqueBoughtProductCount;
     private Long boughtProductItemCount;
     private Long purchasesCount;
+    private Long uniquePurchasesInSpecifiedPeriod;
     private Double totalValue;
     private Double averagePurchaseValue;
-    private Double averagePurchaseItemsCount;
-    private Long averagePurchaseTimeGapSeconds;
+    private Double averagePurchaseUniqueItemsCount;
     private List<Customer> top5CustomersByValue;
     private List<Product> top5ProductsByGeneratedValue;
     private List<Product> top5ProductsByItemCount;

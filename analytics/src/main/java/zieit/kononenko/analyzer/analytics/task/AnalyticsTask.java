@@ -77,9 +77,6 @@ public class AnalyticsTask implements Task {
         long uniquePurchasesInSpecifiedPeriod = allJoinedData.select(countDistinct(PURCHASE_ITEM_ORDER_ID))
                 .collectAsList().get(0).getLong(0);
 
-        long averagePurchaseTimeGapSeconds = Duration.between(request.getPeriodStart(), request.getPeriodEnd())
-                .getSeconds() / uniquePurchasesInSpecifiedPeriod;
-
         long boughtProductItemCount = allJoinedData.select(sum(PURCHASE_ITEM_QUANTITY))
                 .collectAsList().get(0).getLong(0);
 
@@ -151,10 +148,10 @@ public class AnalyticsTask implements Task {
                 .uniqueBoughtProductCount(uniqueBoughtProductCount)
                 .boughtProductItemCount(boughtProductItemCount)
                 .purchasesCount(uniquePurchasesCount)
+                .uniquePurchasesInSpecifiedPeriod(uniquePurchasesInSpecifiedPeriod)
                 .totalValue(totalValue)
                 .averagePurchaseValue(averagePurchaseValue)
-                .averagePurchaseItemsCount(averagePurchaseItemsCount)
-                .averagePurchaseTimeGapSeconds(averagePurchaseTimeGapSeconds)
+                .averagePurchaseUniqueItemsCount(averagePurchaseItemsCount)
                 .top5CustomersByValue(top5CustomersByValue)
                 .top5ProductsByGeneratedValue(top5ProductsByGeneratedValue)
                 .top5ProductsByItemCount(top5ProductsByItemCount)
@@ -163,7 +160,7 @@ public class AnalyticsTask implements Task {
     }
 
     private ChartPoint mapRowToChartPoint(Row row) {
-        return new ChartPoint(row.getTimestamp(0).toLocalDateTime().toLocalDate(), row.getDouble(1));
+        return new ChartPoint(row.getTimestamp(0).toLocalDateTime().toLocalDate(), row.getDouble(1), false);
     }
 
     private Product mapRowToProduct(Row row) {

@@ -22,5 +22,4 @@ public class Product {
     private String id;
     private String title;
     private String shopUrl;
-    private Long itemsLeft;
 }
