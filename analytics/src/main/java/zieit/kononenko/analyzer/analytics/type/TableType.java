@@ -8,7 +8,7 @@ import lombok.RequiredArgsConstructor;
 public enum TableType {
     CUSTOMER("customer"),
     PRODUCT("product"),
-    PURCHASE("purchase");
+    PURCHASE("purchase_item");
 
     private final String tableName;
 }

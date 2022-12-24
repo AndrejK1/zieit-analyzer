@@ -2,7 +2,7 @@
 version: '3'
 services:
   db:
-    image: postgres:13
+    image: postgres
     restart: always
     container_name: analyzer_db
     ports:
@@ -10,5 +10,7 @@ services:
     environment:
       POSTGRES_DB: analyzer
       POSTGRES_PASSWORD: analyzer
+      TZ: 'GMT+2'
+      PGTZ: 'GMT+2'
     volumes:
       - ./postgres:/var/lib/postgresql/data

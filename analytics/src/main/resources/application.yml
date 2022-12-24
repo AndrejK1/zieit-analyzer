@@ -6,13 +6,13 @@ spring:
 
 logging:
   level:
-    root: debug
+    root: info
 
 
 spark:
   postgres:
     jars:
-      - ./jars/postgresql-42.5.0.jar
+      - ./jars/postgresql-42.5.1.jar
     master: spark://127.0.0.1:7077
     maxExecutors: 1
     coresPerExecutor: 1
@@ -24,3 +24,6 @@ spark:
     username: postgres
     password: analyzer
     database: analyzer
+
+server:
+  port: 8090
