@@ -22,5 +22,5 @@ public class PurchaseItem {
     private String productId;
     private Long quantity;
     private Double price;
-    private LocalDateTime purchasedTimestamp;
+    private LocalDateTime purchaseTimestamp;
 }

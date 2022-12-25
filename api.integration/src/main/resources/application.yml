@@ -4,6 +4,12 @@ spring:
     username: postgres
     password: analyzer
 
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        ejb.interceptor.session_scoped: zieit.kononenko.analyzer.api.integration.config.HibernateInterceptor
+
 logging:
   level:
     root: info
