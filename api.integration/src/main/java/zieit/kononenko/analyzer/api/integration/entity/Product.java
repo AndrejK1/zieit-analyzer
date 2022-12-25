@@ -25,7 +25,7 @@ public class Product {
     private String shopUrl;
 
     @Transient
-    private Long price;
+    private Double price;
     @Transient
-    private Long priority;
+    private Integer priority;
 }

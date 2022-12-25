@@ -14,13 +14,8 @@ import zieit.kononenko.analyzer.api.integration.sync.AbstractConnection;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.Period;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -28,9 +23,8 @@ import java.util.stream.Collectors;
 public class PostgresConnection implements AbstractConnection {
     private static final String CUSTOMERS_FILE = "static/customers.txt";
     private static final String PRODUCTS_FILE = "static/products.txt";
-    private static final Long PURCHASES_COUNT = 5500L;
-    private static final Long MAX_ITEMS = 5L;
-    private static final Long MAX_QTY = 3L;
+    private static final Integer MAX_ITEMS = 5;
+    private static final Integer MAX_QTY = 3;
     private static final LocalDateTime LOW_BOUND = LocalDateTime.now().minusYears(2);
     private static final LocalDateTime UPPER_BOUND = LocalDateTime.now();
 
@@ -48,7 +42,7 @@ public class PostgresConnection implements AbstractConnection {
         customers.addAll(loadCustomersFromFile());
         products.addAll(loadProductsFromFile());
 
-        Map<String, Object> customersDataForGeneration = customers.stream().collect(HashMap::new, (m, v) -> {
+        Map<String, CustomerDataHolder> customersDataForGeneration = customers.stream().collect(HashMap::new, (m, v) -> {
                     int customerRecency = random.nextInt(10);
 
                     LocalDateTime lastActive;
@@ -68,14 +62,48 @@ public class PostgresConnection implements AbstractConnection {
                 },
                 Map::putAll);
 
-        AtomicLong counter = new AtomicLong();
-        Map<Long, Product> productsDataForGeneration = products.stream()
+        AtomicInteger counter = new AtomicInteger();
+        Map<Integer, Product> productsDataForGeneration = products.stream()
                 .collect(LinkedHashMap::new,
                         (m, v) -> m.put(counter.addAndGet(v.getPriority()), v),
                         Map::putAll);
 
-        // todo orders generation
+        AtomicLong purchaseId = new AtomicLong(System.currentTimeMillis());
+        AtomicLong purchaseItemId = new AtomicLong(System.currentTimeMillis());
 
+        customersDataForGeneration.forEach((id, customerData) -> {
+            for (int i = 0; i < customerData.getOrders(); i++) {
+                int items = random.nextInt(MAX_ITEMS) + 1;
+
+                LocalDateTime purchaseTime = customerData.getOut()
+                        .minusMonths(i / 2)
+                        .minusDays(random.nextInt(20));
+
+                for (int item = 0; item < items; item++) {
+                    long qty = random.nextInt(MAX_QTY) + 1L;
+                    int productCounter = random.nextInt(counter.get()) + 1;
+
+                    Product product = productsDataForGeneration.entrySet()
+                            .stream()
+                            .filter(e -> e.getKey() > productCounter)
+                            .map(Map.Entry::getValue)
+                            .findFirst()
+                            .orElse(products.get(0));
+
+                    purchases.add(new PurchaseItem(
+                            String.valueOf(purchaseItemId.incrementAndGet()),
+                            String.valueOf(purchaseId.get()),
+                            id,
+                            product.getId(),
+                            qty,
+                            product.getPrice(),
+                            purchaseTime
+                    ));
+                }
+
+                purchaseId.incrementAndGet();
+            }
+        });
     }
 
     @Override
@@ -128,7 +156,7 @@ public class PostgresConnection implements AbstractConnection {
                 .filter(StringUtils::hasText)
                 .map(line -> {
                     String[] values = line.split(",");
-                    return new Product(null, values[0], values[1], Long.parseLong(values[2]), Long.parseLong(values[3]));
+                    return new Product(null, values[0], values[1], Double.parseDouble(values[2]), Integer.parseInt(values[3]));
                 })
                 .collect(Collectors.toList());
 
