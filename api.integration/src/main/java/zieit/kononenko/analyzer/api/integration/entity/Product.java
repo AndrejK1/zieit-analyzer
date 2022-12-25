@@ -9,6 +9,7 @@ import lombok.Setter;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Setter
 @Getter
@@ -22,4 +23,9 @@ public class Product {
     private String id;
     private String title;
     private String shopUrl;
+
+    @Transient
+    private Long price;
+    @Transient
+    private Long priority;
 }

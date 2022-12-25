@@ -7,3 +7,6 @@ spring:
 logging:
   level:
     root: info
+
+server:
+  port: 8085
