@@ -13,7 +13,6 @@ public class SchemaFields {
     public static final String POSTGRES_PRODUCT_ID_FIELD = "id";
     public static final String POSTGRES_PRODUCT_TITLE_FIELD = "title";
     public static final String POSTGRES_PRODUCT_URL_FIELD = "url";
-    public static final String POSTGRES_PRODUCT_ITEMS_LEFT_FIELD = "items_left";
 
     public static final String POSTGRES_PURCHASE_ITEM_ID = "id";
     public static final String POSTGRES_PURCHASE_ITEM_ORDER_ID = "order_id";
@@ -33,7 +32,6 @@ public class SchemaFields {
     public static final String PRODUCT_ID_FIELD = PRODUCT_PREFIX + POSTGRES_PRODUCT_ID_FIELD;
     public static final String PRODUCT_TITLE_FIELD = PRODUCT_PREFIX + POSTGRES_PRODUCT_TITLE_FIELD;
     public static final String PRODUCT_URL_FIELD = PRODUCT_PREFIX + POSTGRES_PRODUCT_URL_FIELD;
-    public static final String PRODUCT_ITEMS_LEFT_FIELD = PRODUCT_PREFIX + POSTGRES_PRODUCT_ITEMS_LEFT_FIELD;
 
     private static final String PURCHASE_PREFIX = "purchase_";
     public static final String PURCHASE_ITEM_ID = PURCHASE_PREFIX + POSTGRES_PURCHASE_ITEM_ID;

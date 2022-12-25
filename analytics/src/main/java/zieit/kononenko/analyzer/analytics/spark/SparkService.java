@@ -14,7 +14,6 @@ import static zieit.kononenko.analyzer.analytics.constants.SchemaFields.CUSTOMER
 import static zieit.kononenko.analyzer.analytics.constants.SchemaFields.CUSTOMER_ID_FIELD;
 import static zieit.kononenko.analyzer.analytics.constants.SchemaFields.CUSTOMER_LAST_NAME_FIELD;
 import static zieit.kononenko.analyzer.analytics.constants.SchemaFields.PRODUCT_ID_FIELD;
-import static zieit.kononenko.analyzer.analytics.constants.SchemaFields.PRODUCT_ITEMS_LEFT_FIELD;
 import static zieit.kononenko.analyzer.analytics.constants.SchemaFields.PRODUCT_TITLE_FIELD;
 import static zieit.kononenko.analyzer.analytics.constants.SchemaFields.PRODUCT_URL_FIELD;
 import static zieit.kononenko.analyzer.analytics.constants.SchemaFields.PURCHASE_ITEM_CUSTOMER_ID;
@@ -46,7 +45,6 @@ public class SparkService {
                             col(SchemaFields.POSTGRES_PRODUCT_ID_FIELD).as(PRODUCT_ID_FIELD),
                             col(SchemaFields.POSTGRES_PRODUCT_TITLE_FIELD).as(PRODUCT_TITLE_FIELD),
                             col(SchemaFields.POSTGRES_PRODUCT_URL_FIELD).as(PRODUCT_URL_FIELD),
-                            col(SchemaFields.POSTGRES_PRODUCT_ITEMS_LEFT_FIELD).as(PRODUCT_ITEMS_LEFT_FIELD)
                     }
             )
             .put(TableType.PURCHASE,

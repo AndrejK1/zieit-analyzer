@@ -7,7 +7,8 @@ spring:
 logging:
   level:
     root: info
-
+    org.apache.spark: warn
+    org.spark_project: warn
 
 spark:
   postgres:
