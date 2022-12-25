@@ -1,5 +1,6 @@
 package zieit.kononenko.analyzer.analytics.task.vo;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @Data
 @Builder
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AnalyticsReport {
     private Long customerCount;
     private Long activeCustomerCount;
