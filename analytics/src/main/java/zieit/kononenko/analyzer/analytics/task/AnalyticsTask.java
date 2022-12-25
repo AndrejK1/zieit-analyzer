@@ -2,6 +2,7 @@ package zieit.kononenko.analyzer.analytics.task;
 
 
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.expressions.Window;
@@ -31,6 +32,8 @@ import static zieit.kononenko.analyzer.analytics.constants.SchemaFields.PURCHASE
 import static zieit.kononenko.analyzer.analytics.constants.SchemaFields.PURCHASE_ITEM_PRODUCT_ID;
 import static zieit.kononenko.analyzer.analytics.constants.SchemaFields.PURCHASE_ITEM_PURCHASE_TIMESTAMP;
 import static zieit.kononenko.analyzer.analytics.constants.SchemaFields.PURCHASE_ITEM_QUANTITY;
+import zieit.kononenko.analyzer.analytics.entity.AnalyticsReportEntity;
+import zieit.kononenko.analyzer.analytics.service.AnalyticsReportService;
 import zieit.kononenko.analyzer.analytics.spark.SparkService;
 import zieit.kononenko.analyzer.analytics.task.vo.AnalyticsReport;
 import zieit.kononenko.analyzer.analytics.task.vo.AnalyticsTaskRequest;
@@ -38,6 +41,7 @@ import zieit.kononenko.analyzer.analytics.type.TableType;
 import static zieit.kononenko.analyzer.analytics.utils.ScalaUtils.toSeq;
 
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,7 +73,10 @@ public class AnalyticsTask implements Task {
 
     //    time points analytics fields
     private static final String DAY_TIMESTAMP_FIELD = "day_timestamp";
+
+    private static final int DAYS_TO_PREDICT = 60;
     private final SparkService sparkService;
+    private final AnalyticsReportService analyticsReportService;
 
     @Override
     public void accept(AnalyticsTaskRequest request) {
@@ -204,10 +211,19 @@ public class AnalyticsTask implements Task {
                 .productsWithStats(productsWithStats)
                 .revenueValueChartByDay(revenueValueChartByDay)
                 .build();
+
+        analyticsReportService.save(
+                new AnalyticsReportEntity(System.currentTimeMillis(),
+                        request.getShopId(),
+                        report,
+                        request.getPeriodStart(),
+                        request.getPeriodEnd()
+                )
+        );
     }
 
     private List<AnalyticsReport.ChartPoint> collectChartPoints(Dataset<Row> orderDataset) {
-        return orderDataset
+        List<AnalyticsReport.ChartPoint> existingPoints = orderDataset
                 .withColumn(DAY_TIMESTAMP_FIELD, date_trunc("DAY", col(PURCHASE_ITEM_PURCHASE_TIMESTAMP)))
                 .groupBy(col(DAY_TIMESTAMP_FIELD))
                 .agg(sum(col(PURCHASE_LINE_VALUE)).as(PRODUCT_TOTAL_VALUE))
@@ -216,6 +232,27 @@ public class AnalyticsTask implements Task {
                 .stream()
                 .map(this::mapRowToChartPoint)
                 .collect(Collectors.toList());
+
+        // calculate regression
+        SimpleRegression simpleRegression = new SimpleRegression();
+
+        double[] x = new double[existingPoints.size()];
+        double[] y = new double[existingPoints.size()];
+
+        for (int i = 0; i < existingPoints.size(); i++) {
+            simpleRegression.addData(i, existingPoints.get(i).getValue());
+        }
+
+        LocalDate lastExistingDate = existingPoints.get(existingPoints.size() - 1).getDate();
+
+        for (int i = 0; i < DAYS_TO_PREDICT; i++) {
+            existingPoints.add(new AnalyticsReport.ChartPoint(
+                    lastExistingDate.plusDays(i + 1),
+                    simpleRegression.predict(existingPoints.size() + (double) i),
+                    true));
+        }
+
+        return existingPoints;
     }
 
     private AnalyticsReport.ChartPoint mapRowToChartPoint(Row row) {
